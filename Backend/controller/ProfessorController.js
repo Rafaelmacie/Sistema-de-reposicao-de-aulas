@@ -12,14 +12,16 @@ class ProfessorController {
   async cadastrar(req, res) {
     try {
       // 1. Extrai os dados do corpo da requisição
-      const dadosProfessor = req.body;
+      const dados = req.body;
 
-      // 2. Chama a camada de serviço para executar a lógica de negócio
-      const novoProfessor = await ProfessorService.cadastrarProfessor(dadosProfessor);
+      const criadoPorAdmin = !!req.user;
 
-      // 3. Retorna a resposta de sucesso
-      // O status 201 Created é o mais apropriado para criação de recursos.
-      res.status(201).json(novoProfessor);
+      const novoProfessor = await ProfessorService.cadastrarProfessor({
+        ...dados,
+        criado_por_admin: criadoPorAdmin
+      });
+
+      return res.status(201).json(novoProfessor);
 
     } catch (error) {
       // 4. Lida com erros
@@ -100,7 +102,7 @@ class ProfessorController {
 
       console.error('Erro ao iniciar solicitação:', error);
       res.status(500).json({ message: 'Erro interno ao iniciar solicitação.' });
-      
+
     }
   }
 

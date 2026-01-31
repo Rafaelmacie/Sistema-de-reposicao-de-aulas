@@ -1,29 +1,71 @@
-// src/routes.jsx (Atualizado e Completo)
+// src/routes.jsx
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
-import { createBrowserRouter } from "react-router-dom";
-
-// Importando o layout principal e todas as páginas
+// Layout e Contexto
 import App from "./App.jsx";
+import { useAuth } from "./context/AuthContext";
+
+// Páginas Gerais/Autenticação
 import InicioPage from "./pages/InicioPage.jsx";
+import Login from './pages/Login/Login.jsx';
+import CadastroPage from './pages/CadastroPage/CadastroPage.jsx';
+
+// Páginas Públicas - Sem Navbar
+import PaginaAssinatura from "./pages/PaginaAssinatura/PaginaAssinatura.jsx";
+import TelaSucesso from "./pages/TelaSucesso/TelaSucesso.jsx";
+import CadastroAlunoPage from './pages/CadastroAlunoPage/CadastroAlunoPage.jsx';
+
+// Páginas Privadas - Com Navbar
 import CoordenadorDashboard from "./pages/CoordenadorDashboard/CoordenadorDashboard.jsx";
 import GerenciarProfessores from "./pages/GerenciarProfessores/GerenciarProfessores.jsx";
 import ProfessorDashboard from "./pages/ProfessorDashboard/ProfessorDashboard.jsx";
 import GerenciarTurmas from './pages/GerenciarTurmas/GerenciarTurmas.jsx';
 import AprovarReposicoes from './pages/AprovarReposicoes/AprovarReposicoes.jsx';
 import VisualizarAssinaturasPage from './pages/VisualizarAssinaturasPage/VisualizarAssinaturasPage.jsx';
-import Login from './pages/Login/Login.jsx'
-import CadastroPage from './pages/CadastroPage/CadastroPage.jsx';
-import CadastroAlunoPage from './pages/CadastroAlunoPage/CadastroAlunoPage.jsx';
-import SolicitarReposicaoPage from './pages/SolicitarReposicoes/SolicitarReposicoes.jsx'
-import MinhasReposicoesPage from './pages/MinhasReposicoes/MinhasReposicoes.jsx'
-import ConfirmarAula from './pages/ConfirmarAula/ConfirmarAula.jsx'; 
+import SolicitarReposicaoPage from './pages/SolicitarReposicoes/SolicitarReposicoes.jsx';
+import MinhasReposicoesPage from './pages/MinhasReposicoes/MinhasReposicoes.jsx';
+import ConfirmarAula from './pages/ConfirmarAula/ConfirmarAula.jsx';
 
-// Criamos o roteador centralizado aqui
+/**
+ * Componente Wrapper para proteger rotas privadas.
+ * Se não estiver autenticado, redireciona para o login.
+ */
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
 export const router = createBrowserRouter([
-  // GRUPO 1: Rotas DENTRO do layout principal (com Navbar)
+  // Rotas públicas
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/assinar/:id_solicitacao/:matricula_aluno",
+    element: <PaginaAssinatura />,
+  },
+  {
+    path: "/obrigado",
+    element: <TelaSucesso />,
+  },
+  {
+    path: "/cadastro/aluno",
+    element: <CadastroAlunoPage />,
+  },
+  {
+    path: "/cadastro/:token_seguro",
+    element: <CadastroPage />
+  },
+
+  // Rotas Privadas
   {
     path: "/",
-    element: <App />,
+    element: (
+      <ProtectedRoute>
+        <App />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "/",
@@ -33,6 +75,7 @@ export const router = createBrowserRouter([
         path: "/inicio",
         element: <InicioPage />,
       },
+      // Coordenador
       {
         path: "/coordenador/dashboard",
         element: <CoordenadorDashboard />,
@@ -42,6 +85,15 @@ export const router = createBrowserRouter([
         element: <GerenciarProfessores />,
       },
       {
+        path: '/coordenador/turmas',
+        element: <GerenciarTurmas />,
+      },
+      {
+        path: '/coordenador/aprovar-reposicoes',
+        element: <AprovarReposicoes />,
+      },
+      // Professor
+      {
         path: "/professor/dashboard",
         element: <ProfessorDashboard />,
       },
@@ -49,7 +101,7 @@ export const router = createBrowserRouter([
         path: "/professor/minhas-reposicoes",
         element: <MinhasReposicoesPage />,
       },
-      { 
+      {
         path: '/professor/reposicao/:id_solicitacao/assinaturas',
         element: <VisualizarAssinaturasPage />,
       },
@@ -58,29 +110,15 @@ export const router = createBrowserRouter([
         element: <SolicitarReposicaoPage />,
       },
       {
-        path: '/coordenador/turmas',
-        element: <GerenciarTurmas />,
-      },
-      {
-        path: '/coordenador/aprovar-reposicoes',
-        element: <AprovarReposicoes />,
-      },
-      {
-        path: "/login",
-        element: <Login />,
-      },
-      {
-        path: "/cadastro", // <-- Rota de cadastro para Professor/Coordenador
-        element: <CadastroPage />
-      },
-      {
-        path: "/cadastro/aluno",
-        element: <CadastroAlunoPage />,
-      },
-      {
         path: "/professor/confirmar-aula",
         element: <ConfirmarAula />,
       },
     ],
   },
+
+  // Rota de 404 ou redirecionamento caso a rota não exista
+  {
+    path: "*",
+    element: <Navigate to="/login" replace />,
+  }
 ]);

@@ -219,4 +219,27 @@ export const confirmarRealizacaoReposicao = async (id_solicitacao, dados) => { /
   }
 };
 
+export const buscar_reposicao_por_id = async (id_solicitacao) => {
+  try {
+    const response = await api.get(`/reposicao/${id_solicitacao}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+// Registra a assinatura do aluno
+export const assinar_reposicao = async (id_solicitacao, dados_assinatura) => {
+  try {
+    // O backend espera: POST /reposicao/:id_solicitacao/assinar
+    const response = await api.post(
+      `/reposicao/${id_solicitacao}/assinar`,
+      dados_assinatura
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
 export default api;

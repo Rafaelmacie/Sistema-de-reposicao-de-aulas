@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'; // 1. Adicionado useEffect para buscar dados
 import './CadastroPage.css';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import MultiSelectModal from '../../components/MultiSelectModal/MultiSelectModal';
 // 2. Importada a nova função para buscar disciplinas
-import { cadastrarProfessor, cadastrarCoordenador, buscarDisciplinas } from '../../services/api'; 
+import { cadastrarProfessor, cadastrarCoordenador, buscarDisciplinas } from '../../services/api';
 
 // 3. Array de disciplinas fixo foi REMOVIDO מכאן
 
 const CadastroPage = () => {
+  const { token_seguro } = useParams(); // Captura o que vier na URL
   const [role, setRole] = useState('');
   const [disciplinas, setDisciplinas] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,15 +57,15 @@ const CadastroPage = () => {
     event.preventDefault();
     setError('');
 
+    // Validações de UI (Senhas e Disciplinas)
     if (formData.senha !== formData.confirmarSenha) {
       setError('As senhas não coincidem!');
       return;
     }
 
-    // 6. NOVA VALIDAÇÃO: Verifica se o professor selecionou pelo menos uma disciplina
     if (role === 'professor' && disciplinas.length === 0) {
       setError('Um professor deve estar associado a pelo menos uma disciplina.');
-      return; // Impede o envio do formulário
+      return;
     }
 
     try {
@@ -74,7 +76,10 @@ const CadastroPage = () => {
           matricula: formData.matricula,
           senha: formData.senha,
           disciplinas: disciplinas,
+          token_seguro: token_seguro // 2. Injeta o segredo aqui
         };
+
+        // Chamando sua função do api.js
         await cadastrarProfessor(dadosParaEnviar);
         alert('Professor cadastrado com sucesso!');
 
@@ -85,7 +90,10 @@ const CadastroPage = () => {
           matricula: formData.matricula,
           senha: formData.senha,
           departamento: formData.departamento,
+          token_seguro: token_seguro // 2. Injeta o segredo aqui também
         };
+
+        // Chamando sua função do api.js
         await cadastrarCoordenador(dadosParaEnviar);
         alert('Coordenador cadastrado com sucesso!');
       }
@@ -94,6 +102,7 @@ const CadastroPage = () => {
 
     } catch (err) {
       console.error('Erro no cadastro:', err);
+      // Aqui o erro pode ser o "Token Inválido" vindo do backend
       const errorMessage = err.message || `Ocorreu um erro ao cadastrar o ${role}.`;
       setError(errorMessage);
       alert(`Erro: ${errorMessage}`);
@@ -103,9 +112,9 @@ const CadastroPage = () => {
   // 7. Lógica atualizada para usar a lista dinâmica 'availableDisciplinas'
   const disciplinasDisplay = disciplinas.length > 0
     ? availableDisciplinas
-        .filter(d => disciplinas.includes(d.id))
-        .map(d => d.label)
-        .join(', ')
+      .filter(d => disciplinas.includes(d.id))
+      .map(d => d.label)
+      .join(', ')
     : 'Clique para selecionar...';
 
   return (
@@ -129,20 +138,20 @@ const CadastroPage = () => {
               <>
                 <div className="form-group">
                   <label htmlFor="nome">Nome completo</label>
-                  <input type="text" id="nome" name="nome" required 
+                  <input type="text" id="nome" name="nome" required
                     value={formData.nome} onChange={handleInputChange} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
-                  <input type="email" id="email" name="email" required 
+                  <input type="email" id="email" name="email" required
                     value={formData.email} onChange={handleInputChange} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="matricula">Matrícula</label>
-                  <input type="text" id="matricula" name="matricula" required 
+                  <input type="text" id="matricula" name="matricula" required
                     value={formData.matricula} onChange={handleInputChange} />
                 </div>
-                
+
                 {role === 'professor' && (
                   <div className="form-group">
                     <label>Disciplinas ministradas</label>
@@ -151,23 +160,23 @@ const CadastroPage = () => {
                     </div>
                   </div>
                 )}
-                
+
                 {role === 'coordenador' && (
                   <div className="form-group">
                     <label htmlFor="departamento">Departamento</label>
-                    <input type="text" id="departamento" name="departamento" required 
+                    <input type="text" id="departamento" name="departamento" required
                       value={formData.departamento} onChange={handleInputChange} />
                   </div>
                 )}
 
                 <div className="form-group">
                   <label htmlFor="senha">Senha</label>
-                  <input type="password" id="senha" name="senha" required 
+                  <input type="password" id="senha" name="senha" required
                     value={formData.senha} onChange={handleInputChange} />
                 </div>
                 <div className="form-group">
                   <label htmlFor="confirmarSenha">Confirmar Senha</label>
-                  <input type="password" id="confirmarSenha" name="confirmarSenha" required 
+                  <input type="password" id="confirmarSenha" name="confirmarSenha" required
                     value={formData.confirmarSenha} onChange={handleInputChange} />
                 </div>
 
@@ -177,7 +186,7 @@ const CadastroPage = () => {
           </form>
         </div>
       </div>
-      
+
       {/* 8. O Modal agora usa 'availableDisciplinas' para as opções */}
       <MultiSelectModal
         isOpen={isModalOpen}

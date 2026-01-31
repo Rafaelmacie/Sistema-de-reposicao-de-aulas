@@ -24,6 +24,16 @@ class ProfessorService {
    * @returns {Promise<Professor>} O objeto do novo professor, sem a senha.
    */
   async cadastrarProfessor(dadosProfessor) {
+    
+    if (!dadosProfessor.criado_por_admin) {
+      const tokenRecebido = dadosProfessor.token_seguro;
+      const tokenReal = process.env.REGISTRATION_TOKEN_SECRET;
+
+      if (!tokenRecebido || tokenRecebido !== tokenReal) {
+        throw new RegraDeNegocioException('Acesso negado: Link de cadastro inválido ou expirado.');
+      }
+    }
+
     // 1. Validação da regra de negócio: Verificar se o e-mail já existe
     const usuarioExistente = await UsuarioRepository.buscarPorEmail(dadosProfessor.email);
     if (usuarioExistente) {

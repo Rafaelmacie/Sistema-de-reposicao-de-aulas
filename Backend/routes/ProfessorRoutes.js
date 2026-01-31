@@ -2,6 +2,7 @@
 
 const { Router } = require('express');
 const ProfessorController = require('../controller/ProfessorController');
+const authOptional = require('../middleware/authOptional')
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
 /* Rotas de CRUD */
 
 // Create
-router.post('/cadastrar', ProfessorController.cadastrar);
+router.post('/cadastrar', authOptional, ProfessorController.cadastrar);
 
 // Read
 router.get('/', ProfessorController.listarTodos);

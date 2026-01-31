@@ -1,19 +1,18 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { login as apiLogin } from '../services/api'; // Importa nossa função de login da API
+import { login as apiLogin } from '../services/api';
 
-// 1. Cria o Contexto
 const AuthContext = createContext(null);
 
-// 2. Cria o Provedor do Contexto
 export const AuthProvider = ({ children }) => {
   const [usuario, setUsuario] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('authToken'));
 
-  // Efeito para carregar dados do usuário se um token existir
+  // Sincroniza o estado do usuário se o token mudar (opcional)
   useEffect(() => {
-    // Aqui você poderia adicionar uma lógica para buscar os dados do usuário
-    // usando o token, se necessário.
+    if (!token) {
+      setUsuario(null);
+    }
   }, [token]);
 
   const login = async (email, senha) => {
@@ -22,11 +21,10 @@ export const AuthProvider = ({ children }) => {
       setUsuario(data.usuario);
       setToken(data.token);
       localStorage.setItem('authToken', data.token);
-      return data.usuario; // Retorna o usuário em caso de sucesso
+      return data.usuario;
     } catch (error) {
-      // Limpa o estado em caso de falha no login
       logout();
-      throw error; // Repassa o erro para o componente
+      throw error;
     }
   };
 
@@ -45,7 +43,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// 3. Cria um hook customizado para facilitar o uso do contexto
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
