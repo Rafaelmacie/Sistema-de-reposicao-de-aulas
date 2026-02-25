@@ -116,3 +116,6 @@ CREATE TABLE notificacao (
     FOREIGN KEY (id_destinatario) REFERENCES usuario(id_usuario)
         ON DELETE CASCADE -- Se o usuário for deletado, suas notificações também são.
 );
+
+INSERT INTO disciplinas (nome, carga_horaria, codigo) VALUES ('Estrutura de Dados', 60, 'ADS001');
+INSERT INTO disciplinas (nome, carga_horaria, codigo) VALUES ('Programação Web', 60, 'ADS002');
