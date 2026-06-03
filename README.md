@@ -1,4 +1,4 @@
-# Sistema de Gestão de Reposição de Aulas - IFCE Campus Boa Viagem
+# Sistema de Gestão de Reposição de Aulas(RepoAula) - IFCE Campus Boa Viagem
 
 ## Objetivo do Sistema
 
